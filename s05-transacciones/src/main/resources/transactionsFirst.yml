@@ -1,0 +1,79 @@
+openapi: 3.0.0
+info:
+  title: Transaction API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+paths:
+  /transactions:
+    post:
+      summary: Register a new transaction.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        201:
+          description: Transaction successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        default:
+          description: Unexpected error.
+
+  /transactions/client/{clientId}:
+    get:
+      summary: Get transactions by client ID.
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          description: Client's ID.
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of client's transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        404:
+          description: Client not found.
+        default:
+          description: Unexpected error.
+
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the transaction.
+        clientId:
+          type: string
+          description: Client ID associated with the transaction.
+        referenceId:
+          type: string
+          description: Card number, account number, loan ID, etc.
+        amount:
+          type: number
+          format: double
+          description: Amount of the transaction.
+        description:
+          type: string
+          description: Description of the transaction.
+        transactionDate:
+          type: string
+          format: date-time
+          description: Date and time of the transaction.
+        transactionType:
+          type: string
+          enum: [CREDIT_CARD, SAVINGS_ACCOUNT, LOAN]
+          description: Type of transaction.

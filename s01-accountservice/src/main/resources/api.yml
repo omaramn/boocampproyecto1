@@ -1,0 +1,214 @@
+openapi: 3.0.0
+info:
+  title: Account Service API
+  version: 1.0.0
+  description: API for managing bank accounts
+servers:
+  - url: http://localhost:8081
+    description: Account Service
+paths:
+  /accounts:
+    post:
+      summary: Create a new bank account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreateInput'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+        '400':
+          description: Bad request. Invalid input data.
+          content:
+            application/json:
+              example:
+                message: Invalid input data.
+        '500':
+          description: Internal server error. Something went wrong on the server.
+          content:
+            application/json:
+              example:
+                message: An error occurred on the server. Please try again later.
+
+  /accounts/byList:
+    post:
+      summary: Get all accounts by List of IDs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: Accounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountDetails'
+        '400':
+          description: Bad request. Invalid input data.
+          content:
+            application/json:
+              example:
+                message: Invalid input data.
+        '500':
+          description: Internal server error. Something went wrong on the server.
+          content:
+            application/json:
+              example:
+                message: An error occurred on the server. Please try again later.
+
+  /accounts/{clientId}:
+    get:
+      summary: Get account details by ClientID
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the account
+      responses:
+        '200':
+          description: Account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+
+  /accounts/{accountId}:
+    get:
+      summary: Get account details by ID
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the account
+      responses:
+        '200':
+          description: Account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+  /accounts/{accountId}/addSigners:
+    post:
+      summary: Adds Signers to Account based on ID
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: Account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+components:
+  schemas:
+    AccountCreateInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - ahorro
+            - corriente
+            - plazoFijo
+          description: Type of account (ahorro / corriente / plazoFijo)
+        owner_clients:
+          type: array
+          items:
+            type: string
+        sign_clients:
+          type: array
+          items:
+            type: string
+    AccountDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - ahorro
+            - corriente
+            - plazoFijo
+        owner_clients:
+          type: array
+          items:
+            type: string
+        sign_clients:
+          type: array
+          items:
+            type: string
+        balance:
+          type: number
+      required:
+        - type
+        - balance
+        - owner_clients
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        id_cliente:
+          type: string
+        type:
+          type: string
+        amount:
+          type: number
+        orig_account:
+          type: string
+        destiny_account:
+          type: string
+      required:
+        - id_cliente
+        - type
+        - amount
+        - orig_account
+        - destiny_account
+
+    ClientDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        dni:
+          type: string
+          description: Client's identification number
+        type:
+          type: string
+          enum:
+            - personal
+            - empresarial
